@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   Activity, 
   Home, 
@@ -36,8 +36,18 @@ import { api } from "@/lib/api"
 
 export default function HealthcareAppBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [adminName, setAdminName] = useState("Admin User")
+  const [adminRole, setAdminRole] = useState("User")
   const pathname = usePathname()
   const router = useRouter()
+
+  useEffect(() => {
+    // Load admin data from localStorage only on client side
+    const name = localStorage.getItem("adminName")
+    const role = localStorage.getItem("adminRole")
+    if (name) setAdminName(name)
+    if (role) setAdminRole(role)
+  }, [])
 
   // Define routes for navigation items
   const navigationItems = [
@@ -155,21 +165,15 @@ export default function HealthcareAppBar() {
                     <Avatar className="w-8 h-8">
                       <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" />
                       <AvatarFallback>
-                        {typeof window !== "undefined" && localStorage.getItem("adminName")
-                          ? localStorage.getItem("adminName")!.slice(0, 2).toUpperCase()
-                          : "AD"}
+                        {adminName.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="hidden md:block text-left">
                       <p className="text-sm font-medium text-gray-900">
-                        {typeof window !== "undefined" && localStorage.getItem("adminName")
-                          ? localStorage.getItem("adminName")
-                          : "Admin User"}
+                        {adminName}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {typeof window !== "undefined" && localStorage.getItem("adminRole")
-                          ? localStorage.getItem("adminRole")
-                          : "User"}
+                        {adminRole}
                       </p>
                     </div>
                     <ChevronDown className="w-4 h-4 text-gray-400 hidden md:block" />
