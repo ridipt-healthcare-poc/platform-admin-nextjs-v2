@@ -14,7 +14,8 @@ import {
   X,
   User,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Building2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,6 +53,7 @@ export default function HealthcareAppBar() {
   // Define routes for navigation items
   const navigationItems = [
     { id: "home", label: "Home", icon: Home, href: "/" },
+    { id: "facilities", label: "Facilities", icon: Building2, href: "/facilities" },
     { id: "staff", label: "Manage Staff", icon: Users, href: "/staff" },
     { id: "appointments", label: "Appointments", icon: Calendar, href: "/appointments" },
     { id: "reports", label: "Reports", icon: FileText, href: "/reports" },
