@@ -31,16 +31,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation";
-  import axios from "axios";
-  import { toast } from "sonner";
+import axios from "axios";
+import { toast } from "sonner";
 import { api } from "@/lib/api"
+import { useAuth } from "./AuthContext/AuthContext"
+import { hasModule } from "@/lib/permissions" // <-- Import the proper permission utility!
 
 export default function HealthcareAppBar() {
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [adminName, setAdminName] = useState("Admin User")
   const [adminRole, setAdminRole] = useState("User")
   const pathname = usePathname()
   const router = useRouter()
+  const auth = useAuth();
+  const user = auth?.user;
+  const logout = auth?.logout;
+  const permissions = user?.permissions || {};
+
+
 
   useEffect(() => {
     // Load admin data from localStorage only on client side
@@ -52,12 +61,12 @@ export default function HealthcareAppBar() {
 
   // Define routes for navigation items
   const navigationItems = [
-    { id: "home", label: "Home", icon: Home, href: "/" },
-    { id: "facilities", label: "Facilities", icon: Building2, href: "/facilities" },
-    { id: "staff", label: "Manage Staff", icon: Users, href: "/staff" },
-    { id: "appointments", label: "Appointments", icon: Calendar, href: "/appointments" },
-    { id: "reports", label: "Reports", icon: FileText, href: "/reports" },
-    { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+    { id: "home", label: "Home", icon: Home, href: "/" ,  perm: "manageHome"},
+    { id: "facilities", label: "Facilities", icon: Building2, href: "/facilities" , perm: "manageFacilities"},
+    { id: "staff", label: "Platform Staffs", icon: Users, href: "/platform-staffs", perm: "managePlatformStaffs" },
+    // { id: "appointments", label: "Appointments", icon: Calendar, href: "/appointments" },
+    // { id: "reports", label: "Reports", icon: FileText, href: "/reports" },
+    // { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
   ]
 
   // Determine the activeTab from the current pathname
@@ -84,6 +93,7 @@ export default function HealthcareAppBar() {
       }
       toast.success("Logged out successfully");
       router.push("/login");
+      logout();
     } catch (error: any) {
       // Show error toast
       toast.error(
@@ -119,24 +129,25 @@ export default function HealthcareAppBar() {
 
               {/* Desktop Navigation */}
               <nav className="hidden lg:flex items-center gap-1">
-                {navigationItems.map((item) => {
-                  const Icon = item.icon
-                  const isActive = activeTab === item.id
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {item.label}
-                    </Link>
-                  )
-                })}
+                {navigationItems
+                   .filter(item => permissions[item.perm]) 
+                  .map(({ href, label, icon: Icon }) => {
+                   
+                    return (
+                      <Link
+                      key={href}
+                      href={href}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          pathname === href &&
+                             "bg-blue-50 text-blue-600"
+                          // "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {label}
+                      </Link>
+                    )
+                  })}
               </nav>
             </div>
 
@@ -232,50 +243,31 @@ export default function HealthcareAppBar() {
               </div>
 
               {/* Mobile Navigation Items */}
-              {navigationItems.map((item) => {
-                const Icon = item.icon
-                const isActive = activeTab === item.id
-                return (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {item.label}
-                  </Link>
-                )
-              })}
+              {navigationItems
+                .filter(item => hasModule(permissions, item.perm))
+                .map((item) => {
+                  const Icon = item.icon
+                  const isActive = activeTab === item.id
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-blue-50 text-blue-600"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
             </nav>
           </div>
         )}
       </header>
-
-      {/* Demo Content Area
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-50 rounded-full mb-4">
-            {(() => {
-              const ActiveIcon = navigationItems.find(item => item.id === activeTab)?.icon || Home
-              return <ActiveIcon className="w-8 h-8 text-blue-600" />
-            })()}
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {navigationItems.find(item => item.id === activeTab)?.label}
-          </h2>
-          <p className="text-gray-600 mb-6">
-            This is the {navigationItems.find(item => item.id === activeTab)?.label.toLowerCase()} section of your healthcare admin portal.
-          </p>
-          <Button className="">
-            Get Started
-          </Button>
-        </div>
-      </div> */}
     </div>
   )
 }

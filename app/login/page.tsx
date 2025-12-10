@@ -1,57 +1,83 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Mail, Lock, Activity, AlertCircle, Loader2 } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { api } from "@/lib/api"
-import { toast } from "sonner"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, Activity, AlertCircle, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { useAuth } from "@/components/AuthContext/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { login } = useAuth();
+
 
   const handleSubmit = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const res = await api.post("/api/admin/login", { email, password })
-      if (res.data.success) {
-        // Store name and systemrole in localStorage as per instruction
-        if (res.data?.data?.admin) {
-          localStorage.setItem("adminName", res.data.data.admin.name)
-          localStorage.setItem("adminRole", res.data.data.admin.systemrole)
-        }
-        toast.success("Logged in successfully")
-        router.push("/")
+      const res = await api.post("/api/admin/login", { email, password });
+
+      // Make sure the response shape is as expected
+      if (
+        res.data &&
+        (res.data.success === true || res.status === 200) &&
+        res.data?.data?.admin
+      ) {
+        const admin = res.data.data.admin;
+        console.log("addd", admin)
+        // Store to localStorage
+        localStorage.setItem("adminName", admin.name || "");
+        localStorage.setItem("adminRole", admin.systemrole || "");
+
+      
+          login(admin);
+       
+
+        toast.success("Logged in successfully");
+        router.push("/");
+      } else if (res.data && res.data.error) {
+        setError(res.data.error);
+        toast.error(res.data.error);
       } else {
-        setError(res.data.error || "Invalid credentials")
-        toast.error(res.data.error || "Invalid credentials")
+        // Different error or missing admin property
+        setError("Incorrect email or password. Please try again.");
+        toast.error("Incorrect email or password. Please try again.");
       }
     } catch (err: any) {
+      // If backend provides error message use that, else generic
       const errMsg =
         err?.response?.data?.error ||
-        "Login failed. Please check your credentials and try again."
-      setError(errMsg)
-      toast.error(errMsg)
+        err?.message ||
+        "Unable to login. Please try again later or contact support.";
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && email && password && !loading) {
-      handleSubmit()
+    if (e.key === "Enter" && email && password && !loading) {
+      handleSubmit();
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4">
@@ -61,15 +87,21 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
             <Activity className="w-8 h-8 text-white" strokeWidth={2.5} />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Healthcare Admin</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Healthcare Admin
+          </h1>
           <p className="text-gray-600">Sign in to access your dashboard</p>
         </div>
 
         {/* Login Card */}
         <Card className="shadow-xl border-0">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-semibold">Welcome back</CardTitle>
-            <CardDescription>Enter your credentials to continue</CardDescription>
+            <CardTitle className="text-2xl font-semibold">
+              Welcome back
+            </CardTitle>
+            <CardDescription>
+              Enter your credentials to continue
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Email Field */}
@@ -160,5 +192,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
