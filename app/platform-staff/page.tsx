@@ -106,7 +106,7 @@ export default function PlatformStaffsPage() {
 
   // Instead of opening dialog, redirect to edit page
   function handleEditRedirect(staff: PlatformStaff) {
-    router.push(`/platform-staffs/${staff.id}`);
+    router.push(`/platform-staff/${staff.id}`);
   }
 
   // DELETE
@@ -182,7 +182,7 @@ export default function PlatformStaffsPage() {
           {hasModule(permissions, "managePlatformStaffs") && (
             <Button
               className="flex items-center gap-2"
-              onClick={() => router.push("/platform-staffs/create")}
+              onClick={() => router.push("/platform-staff/create")}
             >
               <Plus className="h-4 w-4" />
               Create Platform Staff

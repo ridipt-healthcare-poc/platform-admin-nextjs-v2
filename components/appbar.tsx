@@ -63,7 +63,7 @@ export default function HealthcareAppBar() {
   const navigationItems = [
     { id: "home", label: "Home", icon: Home, href: "/" ,  perm: "manageHome"},
     { id: "facilities", label: "Facilities", icon: Building2, href: "/facilities" , perm: "manageFacilities"},
-    { id: "staff", label: "Platform Staffs", icon: Users, href: "/platform-staffs", perm: "managePlatformStaffs" },
+    { id: "staff", label: "Platform Staffs", icon: Users, href: "/platform-staff", perm: "managePlatformStaffs" },
     // { id: "appointments", label: "Appointments", icon: Calendar, href: "/appointments" },
     // { id: "reports", label: "Reports", icon: FileText, href: "/reports" },
     // { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
@@ -167,7 +167,7 @@ export default function HealthcareAppBar() {
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="w-5 h-5 text-gray-600" />
                 <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
-                  3
+                  0
                 </Badge>
               </Button>
 
@@ -195,10 +195,12 @@ export default function HealthcareAppBar() {
                 <DropdownMenuContent align="end" className="w-30">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <Link href="/profile">
                   <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>

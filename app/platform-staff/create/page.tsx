@@ -43,15 +43,15 @@ const PERMISSION_GROUPS = [
 
 function getInitialPermissions(): any {
   return {
-    manageHome: false,
-    managePlatformStaffs: false,
+    manageHome: true,
+    managePlatformStaffs: true,
     platformStaffActions: {
       create: false,
       read: false,
       update: false,
       delete: false,
     },
-    manageFacilities: false,
+    manageFacilities: true,
     facilitiesActions: {
       create: false,
       read: false,
@@ -111,7 +111,7 @@ export default function CreatePlatformStaffPage() {
       });
       if (res.data.success) {
         toast.success("Platform Staff created!");
-        router.push("/platform-staffs");
+        router.push("/platform-staff");
       } else {
         toast.error(res.data.error || "Failed to create staff.");
       }
@@ -126,7 +126,7 @@ export default function CreatePlatformStaffPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-10">
+    <div className="max-w-6xl mx-auto py-8">
       <Card>
         <CardHeader>
           <CardTitle>Create Platform Staff</CardTitle>
