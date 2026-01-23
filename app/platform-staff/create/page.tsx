@@ -218,13 +218,13 @@ export default function CreatePlatformStaffPage() {
                       {group.permissions.map((perm) => {
                         let checked = false;
                         if (perm.key.startsWith("platformStaffActions.")) {
-                          const p = perm.key.split(".")[1];
+                          const p = perm.key.split(".")[1] as keyof typeof permissions.platformStaffActions;
                           checked = !!permissions.platformStaffActions?.[p];
                         } else if (perm.key.startsWith("facilitiesActions.")) {
-                          const p = perm.key.split(".")[1];
+                          const p = perm.key.split(".")[1] as keyof typeof permissions.facilitiesActions;
                           checked = !!permissions.facilitiesActions?.[p];
                         } else {
-                          checked = !!permissions[perm.key];
+                          checked = !!permissions[perm.key as keyof typeof permissions];
                         }
                         return (
                           <label
