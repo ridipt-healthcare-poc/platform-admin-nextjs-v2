@@ -5,8 +5,6 @@ import {
   Activity, 
   Home, 
   Users, 
-  Calendar, 
-  FileText, 
   Settings, 
   Bell, 
   Search,
@@ -31,7 +29,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation";
-import axios from "axios";
 import { toast } from "sonner";
 import { api } from "@/lib/api"
 import { useAuth } from "./AuthContext/AuthContext"
@@ -94,10 +91,10 @@ export default function HealthcareAppBar() {
       toast.success("Logged out successfully");
       router.push("/login");
       logout();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Show error toast
       toast.error(
-        error?.response?.data?.error ||
+        (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
           "Logout failed. Please try again."
       );
       // Always try to clear user info and redirect regardless

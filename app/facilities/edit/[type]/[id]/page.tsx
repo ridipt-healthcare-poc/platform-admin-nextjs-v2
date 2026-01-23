@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -104,11 +104,7 @@ export default function EditFacilityPage() {
 
   const daysOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-  useEffect(() => {
-    fetchFacility()
-  }, [id, type])
-
-  const fetchFacility = async () => {
+  const fetchFacility = useCallback(async () => {
     try {
       setLoading(true)
       const endpoint = type === "hospital" ? `/api/facilities/hospitals/${id}` : `/api/facilities/clinics/${id}`
@@ -172,14 +168,18 @@ export default function EditFacilityPage() {
           daysOfOperation: data.daysOfOperation || [],
         })
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Fetch error:", error)
       toast.error("Failed to load facility details")
       router.push("/facilities")
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, type, router])
+
+  useEffect(() => {
+    fetchFacility()
+  }, [fetchFacility])
 
   const handleSave = async () => {
     try {
@@ -619,7 +619,7 @@ export default function EditFacilityPage() {
 
                 {hospitalForm.admins.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No additional admins. Click "Add Admin" to create one.
+                    No additional admins. Click &quot;Add Admin&quot; to create one.
                   </p>
                 )}
               </div>
@@ -1072,7 +1072,7 @@ export default function EditFacilityPage() {
 
                 {clinicForm.admins.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No additional admins. Click "Add Admin" to create one.
+                    No additional admins. Click &quot;Add Admin&quot; to create one.
                   </p>
                 )}
               </div>

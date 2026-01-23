@@ -43,13 +43,13 @@ export interface Location {
 // Location API Services
 export const locationService = {
   // Get all locations for a facility
-  getLocationsByFacility: async (facilityId: string, params?: any) => {
+  getLocationsByFacility: async (facilityId: string, params?: Record<string, unknown>) => {
     const response = await api.get(`/api/locations/facility/${facilityId}`, { params });
     return response.data;
   },
 
   // Get all locations (public)
-  getAllLocations: async (params?: any) => {
+  getAllLocations: async (params?: Record<string, unknown>) => {
     const response = await api.get("/api/locations/all", { params });
     return response.data;
   },

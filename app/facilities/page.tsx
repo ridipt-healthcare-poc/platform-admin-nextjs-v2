@@ -31,7 +31,7 @@ interface Facility {
     email: string
     emergencyContact?: string
   }
-  operatingHours?: any
+  operatingHours?: Record<string, { open: string; close: string }>
   daysOfOperation?: string[]
   specializations?: string[]
   adminEmail?: string
@@ -117,244 +117,13 @@ function CredentialsDialog({ open, onOpenChange, credentials }: CredentialsDialo
   )
 }
 
-function EditHospitalDialog({ hospital, open, onOpenChange, onHospitalUpdated }: { hospital: Facility | null; open: boolean; onOpenChange: (open: boolean) => void; onHospitalUpdated: () => void }) {
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    registrationNumber: "",
-    street: "",
-    city: "",
-    state: "",
-    pincode: "",
-    country: "India",
-    phone: "",
-    email: "",
-    emergencyContact: "",
-    specializations: "",
-    operatingHours: {
-      Monday: { open: "09:00", close: "17:00" },
-      Tuesday: { open: "09:00", close: "17:00" },
-      Wednesday: { open: "09:00", close: "17:00" },
-      Thursday: { open: "09:00", close: "17:00" },
-      Friday: { open: "09:00", close: "17:00" },
-      Saturday: { open: "09:00", close: "14:00" },
-      Sunday: { open: "Closed", close: "Closed" },
-    },
-  })
-
-  useEffect(() => {
-    if (hospital && open) {
-      setFormData({
-        name: hospital.name || "",
-        registrationNumber: hospital.registrationNumber || "",
-        street: hospital.address?.street || "",
-        city: hospital.address?.city || "",
-        state: hospital.address?.state || "",
-        pincode: hospital.address?.pincode || "",
-        country: (hospital.address as any)?.country || "India",
-        phone: hospital.phone || "",
-        email: hospital.email || "",
-        emergencyContact: hospital.contact?.emergencyContact || "",
-        specializations: hospital.specializations?.join(", ") || "",
-        operatingHours: hospital.operatingHours || {
-          Monday: { open: "09:00", close: "17:00" },
-          Tuesday: { open: "09:00", close: "17:00" },
-          Wednesday: { open: "09:00", close: "17:00" },
-          Thursday: { open: "09:00", close: "17:00" },
-          Friday: { open: "09:00", close: "17:00" },
-          Saturday: { open: "09:00", close: "14:00" },
-          Sunday: { open: "Closed", close: "Closed" },
-        },
-      })
-    }
-  }, [hospital, open])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!hospital) return
-    setLoading(true)
-
-    try {
-      const payload: any = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: {
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-          country: "India",
-        },
-        contact: {
-          emergencyContact: formData.emergencyContact,
-        },
-        operatingHours: formData.operatingHours,
-        specializations: formData.specializations
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s),
-      }
-
-      // Only include registrationNumber if it's different from the original
-      if (formData.registrationNumber !== hospital.registrationNumber) {
-        payload.registrationNumber = formData.registrationNumber
-      }
-
-      await api.put(`/api/facilities/hospitals/${hospital._id}`, payload)
-      toast.success("Hospital updated successfully!")
-      onOpenChange(false)
-      onHospitalUpdated()
-    } catch (error: any) {
-      console.error("Update error:", error?.response?.data)
-      const errorMsg = error?.response?.data?.error || error?.response?.data?.message || "Failed to update hospital"
-      toast.error(errorMsg)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Hospital</DialogTitle>
-          <DialogDescription>Update hospital information</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Hospital Name *</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-registrationNumber">Registration Number *</Label>
-              <Input
-                id="edit-registrationNumber"
-                value={formData.registrationNumber}
-                onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-street">Street Address *</Label>
-            <Input
-              id="edit-street"
-              value={formData.street}
-              onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-city">City *</Label>
-              <Input
-                id="edit-city"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-state">State *</Label>
-              <Input
-                id="edit-state"
-                value={formData.state}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-pincode">Pincode *</Label>
-              <Input
-                id="edit-pincode"
-                value={formData.pincode}
-                onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-country">Country *</Label>
-            <Input
-              id="edit-country"
-              value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-phone">Phone *</Label>
-              <Input
-                id="edit-phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email *</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-emergencyContact">Emergency Contact</Label>
-            <Input
-              id="edit-emergencyContact"
-              type="tel"
-              value={formData.emergencyContact}
-              onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-specializations">Specializations (comma-separated)</Label>
-            <Input
-              id="edit-specializations"
-              placeholder="e.g., Cardiology, Neurology, Orthopedics"
-              value={formData.specializations}
-              onChange={(e) => setFormData({ ...formData, specializations: e.target.value })}
-            />
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Updating..." : "Update Hospital"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+// EditHospitalDialog removed - using separate edit pages instead
 
 function CreateHospitalDialog({ onHospitalCreated }: { onHospitalCreated: () => void }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showCredentials, setShowCredentials] = useState(false)
-  const [credentials, setCredentials] = useState<any>(null)
+  const [credentials, setCredentials] = useState<{ email: string; password: string; facilityName: string; facilityType: string } | null>(null)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -453,9 +222,9 @@ function CreateHospitalDialog({ onHospitalCreated }: { onHospitalCreated: () => 
           Sunday: { open: "Closed", close: "Closed" },
         },
       })
-    } catch (error: any) {
-      console.error("Create hospital error:", error?.response?.data)
-      const errorMsg = error?.response?.data?.error || error?.response?.data?.message || "Failed to create hospital"
+    } catch (error: unknown) {
+      console.error("Create hospital error:", (error as { response?: { data?: unknown } })?.response?.data)
+      const errorMsg = (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error || (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message || "Failed to create hospital"
       toast.error(errorMsg)
     } finally {
       setLoading(false)
@@ -626,244 +395,13 @@ function CreateHospitalDialog({ onHospitalCreated }: { onHospitalCreated: () => 
   )
 }
 
-function EditClinicDialog({ clinic, open, onOpenChange, onClinicUpdated }: { clinic: Facility | null; open: boolean; onOpenChange: (open: boolean) => void; onClinicUpdated: () => void }) {
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    registrationNumber: "",
-    street: "",
-    city: "",
-    state: "",
-    pincode: "",
-    phone: "",
-    email: "",
-    emergencyContact: "",
-    specializations: "",
-    daysOfOperation: [] as string[],
-  })
-
-  const daysOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-
-  useEffect(() => {
-    if (clinic && open) {
-      setFormData({
-        name: clinic.name || "",
-        registrationNumber: clinic.registrationNumber || "",
-        street: clinic.address?.street || "",
-        city: clinic.address?.city || "",
-        state: clinic.address?.state || "",
-        pincode: clinic.address?.pincode || "",
-        phone: clinic.phone || "",
-        email: clinic.email || "",
-        emergencyContact: clinic.contact?.emergencyContact || "",
-        specializations: clinic.specializations?.join(", ") || "",
-        daysOfOperation: clinic.daysOfOperation || [],
-      })
-    }
-  }, [clinic, open])
-
-  const toggleDay = (day: string) => {
-    setFormData({
-      ...formData,
-      daysOfOperation: formData.daysOfOperation.includes(day)
-        ? formData.daysOfOperation.filter((d) => d !== day)
-        : [...formData.daysOfOperation, day],
-    })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!clinic) return
-    setLoading(true)
-
-    try {
-      const payload: any = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: {
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-          country: "India",
-        },
-        contact: {
-          emergencyContact: formData.emergencyContact,
-        },
-        daysOfOperation: formData.daysOfOperation,
-        specializations: formData.specializations
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s),
-      }
-
-      // Only include registrationNumber if it's different from the original
-      if (formData.registrationNumber !== clinic.registrationNumber) {
-        payload.registrationNumber = formData.registrationNumber
-      }
-
-      await api.put(`/api/facilities/clinics/${clinic._id}`, payload)
-      toast.success("Clinic updated successfully!")
-      onOpenChange(false)
-      onClinicUpdated()
-    } catch (error: any) {
-      console.error("Update error:", error?.response?.data)
-      const errorMsg = error?.response?.data?.error || error?.response?.data?.message || "Failed to update clinic"
-      toast.error(errorMsg)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Clinic</DialogTitle>
-          <DialogDescription>Update clinic information</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-name">Clinic Name *</Label>
-              <Input
-                id="edit-clinic-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-registrationNumber">Registration Number *</Label>
-              <Input
-                id="edit-clinic-registrationNumber"
-                value={formData.registrationNumber}
-                onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-clinic-street">Street Address *</Label>
-            <Input
-              id="edit-clinic-street"
-              value={formData.street}
-              onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-city">City *</Label>
-              <Input
-                id="edit-clinic-city"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-state">State *</Label>
-              <Input
-                id="edit-clinic-state"
-                value={formData.state}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-pincode">Pincode *</Label>
-              <Input
-                id="edit-clinic-pincode"
-                value={formData.pincode}
-                onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-phone">Phone *</Label>
-              <Input
-                id="edit-clinic-phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-clinic-email">Email *</Label>
-              <Input
-                id="edit-clinic-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-clinic-emergencyContact">Emergency Contact</Label>
-            <Input
-              id="edit-clinic-emergencyContact"
-              type="tel"
-              value={formData.emergencyContact}
-              onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-clinic-specializations">Specializations (comma-separated)</Label>
-            <Input
-              id="edit-clinic-specializations"
-              placeholder="e.g., General Medicine, Pediatrics"
-              value={formData.specializations}
-              onChange={(e) => setFormData({ ...formData, specializations: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Days of Operation *</Label>
-            <div className="flex flex-wrap gap-2">
-              {daysOptions.map((day) => (
-                <Button
-                  key={day}
-                  type="button"
-                  variant={formData.daysOfOperation.includes(day) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleDay(day)}
-                >
-                  {day.substring(0, 3)}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading || formData.daysOfOperation.length === 0}>
-              {loading ? "Updating..." : "Update Clinic"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+// EditClinicDialog removed - using separate edit pages instead
 
 function CreateClinicDialog({ onClinicCreated }: { onClinicCreated: () => void }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showCredentials, setShowCredentials] = useState(false)
-  const [credentials, setCredentials] = useState<any>(null)
+  const [credentials, setCredentials] = useState<{ email: string; password: string; facilityName: string; facilityType: string } | null>(null)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -952,9 +490,9 @@ function CreateClinicDialog({ onClinicCreated }: { onClinicCreated: () => void }
         specializations: "",
         daysOfOperation: [],
       })
-    } catch (error: any) {
-      console.error("Create clinic error:", error?.response?.data)
-      const errorMsg = error?.response?.data?.error || error?.response?.data?.message || "Failed to create clinic"
+    } catch (error: unknown) {
+      console.error("Create clinic error:", (error as { response?: { data?: unknown } })?.response?.data)
+      const errorMsg = (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error || (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message || "Failed to create clinic"
       toast.error(errorMsg)
     } finally {
       setLoading(false)
@@ -1263,9 +801,9 @@ function ResetPasswordDialog({ facility, type, open, onOpenChange, onPasswordRes
       onOpenChange(false)
       setNewPassword("")
       onPasswordReset()
-    } catch (error: any) {
-      console.error("Reset password error:", error?.response?.data)
-      const errorMsg = error?.response?.data?.error || error?.response?.data?.message || "Failed to reset password"
+    } catch (error: unknown) {
+      console.error("Reset password error:", error)
+      const errorMsg = (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error || (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message || "Failed to reset password"
       toast.error(errorMsg)
     } finally {
       setLoading(false)
@@ -1316,10 +854,6 @@ export default function FacilitiesPage() {
   const [clinics, setClinics] = useState<Facility[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
-  const [editingHospital, setEditingHospital] = useState<Facility | null>(null)
-  const [editingClinic, setEditingClinic] = useState<Facility | null>(null)
-  const [hospitalEditOpen, setHospitalEditOpen] = useState(false)
-  const [clinicEditOpen, setClinicEditOpen] = useState(false)
   const [resetPasswordFacility, setResetPasswordFacility] = useState<{ facility: Facility; type: "hospital" | "clinic" } | null>(null)
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false)
 
@@ -1327,7 +861,7 @@ export default function FacilitiesPage() {
     try {
       const response = await api.get("/api/facilities/hospitals")
       setHospitals(response.data.data || [])
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch hospitals")
     }
   }
@@ -1336,7 +870,7 @@ export default function FacilitiesPage() {
     try {
       const response = await api.get("/api/facilities/clinics")
       setClinics(response.data.data || [])
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch clinics")
     }
   }
@@ -1356,8 +890,9 @@ export default function FacilitiesPage() {
       await api.delete(`/api/facilities/hospitals/${id}`)
       toast.success("Hospital deleted successfully")
       fetchHospitals()
-    } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Failed to delete hospital")
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to delete hospital"
+      toast.error(errorMessage)
     }
   }
 
@@ -1368,15 +903,12 @@ export default function FacilitiesPage() {
       await api.delete(`/api/facilities/clinics/${id}`)
       toast.success("Clinic deleted successfully")
       fetchClinics()
-    } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Failed to delete clinic")
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to delete clinic"
+      toast.error(errorMessage)
     }
   }
 
-  const handleViewCredentials = (facility: Facility) => {
-    const email = facility.email || facility.adminEmail || facility.contact?.email || "Not available"
-    toast.info(`Login Email: ${email}`, { duration: 5000 })
-  }
 
   const handleResetPassword = (facility: Facility, type: "hospital" | "clinic") => {
     setResetPasswordFacility({ facility, type })
@@ -1408,19 +940,6 @@ export default function FacilitiesPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Edit Dialogs - Now using separate edit pages instead */}
-      {/* <EditHospitalDialog
-        hospital={editingHospital}
-        open={hospitalEditOpen}
-        onOpenChange={setHospitalEditOpen}
-        onHospitalUpdated={fetchHospitals}
-      />
-      <EditClinicDialog
-        clinic={editingClinic}
-        open={clinicEditOpen}
-        onOpenChange={setClinicEditOpen}
-        onClinicUpdated={fetchClinics}
-      /> */}
 
       {/* Header */}
       <div className="flex items-center justify-between">

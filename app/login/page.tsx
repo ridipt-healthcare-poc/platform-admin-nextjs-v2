@@ -60,11 +60,11 @@ export default function LoginPage() {
         setError("Incorrect email or password. Please try again.");
         toast.error("Incorrect email or password. Please try again.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If backend provides error message use that, else generic
       const errMsg =
-        err?.response?.data?.error ||
-        err?.message ||
+        (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error ||
+        (err as { response?: { data?: { error?: string } }; message?: string })?.message ||
         "Unable to login. Please try again later or contact support.";
       setError(errMsg);
       toast.error(errMsg);

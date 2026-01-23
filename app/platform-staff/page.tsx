@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -41,7 +40,7 @@ type StaffPermissions =
         update?: boolean;
         delete?: boolean;
       };
-      [key: string]: any;
+      [key: string]: unknown;
     }
   | undefined;
 
@@ -74,7 +73,6 @@ export default function PlatformStaffsPage() {
   const router = useRouter();
   const auth = useAuth();
   const user = auth?.user;
-  const logout = auth?.logout;
   const permissions = user?.permissions || {};
 
   useEffect(() => {
@@ -88,15 +86,15 @@ export default function PlatformStaffsPage() {
       const response = await api.get("/api/admin/staffs");
       const data = response.data.users;
 
-      let staffData: PlatformStaff[] = Array.isArray(data)
+      const staffData: PlatformStaff[] = Array.isArray(data)
         ? data
         : data.staffs || [];
 
       setStaffs(staffData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
+          (err as { response?: { data?: { message?: string } }; message?: string })?.message ||
           "Failed to load platform staffs"
       );
     } finally {
@@ -125,10 +123,10 @@ export default function PlatformStaffsPage() {
       toast.success("Platform staff deleted.");
       setDeleteDialogOpen(false);
       setDeletingStaff(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(
-        err?.response?.data?.message ||
-          err?.message ||
+        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
+          (err as { response?: { data?: { message?: string } }; message?: string })?.message ||
           "Failed to delete staff."
       );
     } finally {
@@ -136,7 +134,8 @@ export default function PlatformStaffsPage() {
     }
   }
 
-  // Utility to render permissions column
+  // Utility to render permissions column - currently unused but kept for potential future use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function renderPermissions(permissions: StaffPermissions) {
     if (!permissions) return <span>—</span>;
     if (Array.isArray(permissions)) {

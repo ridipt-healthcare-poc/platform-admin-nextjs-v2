@@ -1,8 +1,8 @@
-export const hasModule = (permissions: any, module: string) =>
+export const hasModule = (permissions: Record<string, unknown> | undefined, module: string) =>
     permissions?.[module] === true;
   
 export const hasAction = (
-  permissions: any,
+  permissions: Record<string, unknown> | undefined,
   module: string,
   action: "create" | "read" | "update" | "delete"
 ) => {

@@ -107,11 +107,11 @@ export default function UpdatePlatformStaffPage() {
         }));
         setLoading(false);
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         setFetchError(
-          err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err?.message ||
+          (err as { response?: { data?: { message?: string; error?: string } }; message?: string })?.response?.data?.message ||
+          (err as { response?: { data?: { message?: string; error?: string } }; message?: string })?.response?.data?.error ||
+          (err as { response?: { data?: { message?: string; error?: string } }; message?: string })?.message ||
           "Failed to fetch staff data"
         );
         setLoading(false);
@@ -121,18 +121,18 @@ export default function UpdatePlatformStaffPage() {
   const handlePermChange = (permKey: string, checked: boolean) => {
     if (permKey.startsWith("platformStaffActions.")) {
       const p = permKey.split(".")[1];
-      setPermissions((curr: any) => ({
+      setPermissions((curr) => ({
         ...curr,
         platformStaffActions: { ...curr.platformStaffActions, [p]: checked },
       }));
     } else if (permKey.startsWith("facilitiesActions.")) {
       const p = permKey.split(".")[1];
-      setPermissions((curr: any) => ({
+      setPermissions((curr) => ({
         ...curr,
         facilitiesActions: { ...curr.facilitiesActions, [p]: checked },
       }));
     } else {
-      setPermissions((curr: any) => ({
+      setPermissions((curr) => ({
         ...curr,
         [permKey]: checked,
       }));
@@ -163,11 +163,11 @@ export default function UpdatePlatformStaffPage() {
       } else {
         toast.error(res.data.message || res.data.error || "Failed to update staff.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
+        (err as { response?: { data?: { message?: string; error?: string } }; message?: string })?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; error?: string } }; message?: string })?.response?.data?.error ||
+        (err as { response?: { data?: { message?: string; error?: string } }; message?: string })?.message ||
         "Failed to update staff. Please try again."
       );
     } finally {

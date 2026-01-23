@@ -41,7 +41,25 @@ const PERMISSION_GROUPS = [
   // You can add more groups/permissions as desired
 ];
 
-function getInitialPermissions(): any {
+interface Permissions {
+  manageHome: boolean;
+  managePlatformStaffs: boolean;
+  platformStaffActions: {
+    create: boolean;
+    read: boolean;
+    update: boolean;
+    delete: boolean;
+  };
+  manageFacilities: boolean;
+  facilitiesActions: {
+    create: boolean;
+    read: boolean;
+    update: boolean;
+    delete: boolean;
+  };
+}
+
+function getInitialPermissions(): Permissions {
   return {
     manageHome: true,
     managePlatformStaffs: true,
@@ -69,25 +87,25 @@ export default function CreatePlatformStaffPage() {
     password: "",
   });
 
-  const [permissions, setPermissions] = useState<any>(getInitialPermissions());
+  const [permissions, setPermissions] = useState<Permissions>(getInitialPermissions());
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handlePermChange = (permKey: string, checked: boolean) => {
     if (permKey.startsWith("platformStaffActions.")) {
       const p = permKey.split(".")[1];
-      setPermissions((curr: any) => ({
+      setPermissions((curr: Permissions) => ({
         ...curr,
         platformStaffActions: { ...curr.platformStaffActions, [p]: checked },
       }));
     } else if (permKey.startsWith("facilitiesActions.")) {
       const p = permKey.split(".")[1];
-      setPermissions((curr: any) => ({
+      setPermissions((curr: Permissions) => ({
         ...curr,
         facilitiesActions: { ...curr.facilitiesActions, [p]: checked },
       }));
     } else {
-      setPermissions((curr: any) => ({
+      setPermissions((curr: Permissions) => ({
         ...curr,
         [permKey]: checked,
       }));
@@ -115,9 +133,9 @@ export default function CreatePlatformStaffPage() {
       } else {
         toast.error(res.data.error || "Failed to create staff.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(
-        err?.response?.data?.error ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
         "Failed to create staff. Please try again."
       );
     } finally {
@@ -193,7 +211,7 @@ export default function CreatePlatformStaffPage() {
             <div>
               <h3 className="text-lg font-medium mb-2">Permissions</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {PERMISSION_GROUPS.map((group, idx) => (
+                {PERMISSION_GROUPS.map((group) => (
                   <div key={group.group} className="border rounded-md p-4">
                     <div className="font-semibold mb-2">{group.group}</div>
                     <div className="flex flex-col gap-2">
