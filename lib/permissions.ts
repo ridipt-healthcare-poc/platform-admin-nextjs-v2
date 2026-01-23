@@ -20,15 +20,17 @@ export const hasAction = (
     if (permissions[module] && !permissions[actionsKey]) {
       return true; 
     }
+    const actionsObj = permissions[actionsKey] as Record<string, boolean> | undefined;
     return (
       permissions[module] &&
-      permissions[actionsKey]?.[action] === true
+      actionsObj?.[action] === true
     );
   }
 
   const base = module.replace("manage", "");
   const actionKey = `${base.charAt(0).toLowerCase()}${base.slice(1)}Actions`;
+  const actionsObj = permissions[actionKey] as Record<string, boolean> | undefined;
 
-  return permissions[module] && permissions[actionKey]?.[action];
+  return permissions[module] && actionsObj?.[action];
 };
 
