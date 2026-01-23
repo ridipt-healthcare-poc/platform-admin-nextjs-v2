@@ -93,10 +93,10 @@ export default function HealthcareAppBar() {
       logout();
     } catch (error: unknown) {
       // Show error toast
-      toast.error(
-        (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-          "Logout failed. Please try again."
-      );
+      // toast.error(
+      //   (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+      //     "Logout failed. Please try again."
+      // );
       // Always try to clear user info and redirect regardless
       if (typeof window !== "undefined") {
         localStorage.removeItem("adminName");
