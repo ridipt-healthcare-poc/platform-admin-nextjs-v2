@@ -41,7 +41,7 @@ export default function LoginPage() {
         res.data?.data?.admin
       ) {
         const admin = res.data.data.admin;
-        console.log("addd", admin)
+        // console.log("addd", admin)
         // Store to localStorage
         localStorage.setItem("adminName", admin.name || "");
         localStorage.setItem("adminRole", admin.systemrole || "");
