@@ -257,12 +257,12 @@ function CreateHospitalDialog({ onHospitalCreated }: { onHospitalCreated: () => 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="registrationNumber">Registration Number *</Label>
+                <Label htmlFor="registrationNumber">Registration Number</Label>
                 <Input
                   id="registrationNumber"
                   value={formData.registrationNumber}
                   onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
-                  required
+                 // required
                 />
               </div>
             </div>
