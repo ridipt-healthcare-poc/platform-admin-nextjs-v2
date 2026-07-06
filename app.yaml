@@ -9,6 +9,6 @@ automatic_scaling:
 
 env_variables:
   NODE_ENV: production
-  API_BASE_URL: "https://backend.medsparsh.com"
+  API_BASE_URL: "https://api.medsparsh.com"
 
 
