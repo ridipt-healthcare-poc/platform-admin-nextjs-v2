@@ -3,8 +3,8 @@ import axios from "axios";
 const isServer = typeof window === "undefined";
 
 const API_BASE_URL = isServer
-  ? process.env.API_BASE_URL || ""
-  : process.env.NEXT_PUBLIC_API_URL || "";
+  ? process.env.API_BASE_URL || "https://api.medsparsh.com"
+  : process.env.NEXT_PUBLIC_API_URL || "https://api.medsparsh.com";
 
 const getCookie = (name: string) => {
   if (typeof document === "undefined") return null;
